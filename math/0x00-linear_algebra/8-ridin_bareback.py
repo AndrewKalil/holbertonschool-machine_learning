@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """ 0x00. Linear Algebra """
 
+
 def matrix_shape(matrix):
     """ """
-    
+
     if matrix:
         shape = [len(matrix)]
         while type(matrix[0]) == list:
@@ -12,6 +13,7 @@ def matrix_shape(matrix):
         return shape
     else:
         return [0]
+
 
 def mat_mul(mat1, mat2):
     """ """

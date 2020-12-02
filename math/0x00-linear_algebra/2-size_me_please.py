@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ """
 
+
 def matrix_shape(matrix):
     """ """
     if matrix:
@@ -11,4 +12,3 @@ def matrix_shape(matrix):
         return shape
     else:
         return [0]
-             

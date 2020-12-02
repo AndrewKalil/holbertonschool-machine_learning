@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """ """
 
+
 def add_matrices2D(mat1, mat2):
     """ """
-    
+
     if len(mat1) == len(mat2):
         new_matrix = []
         for i in range(len(mat1)):
@@ -14,5 +15,4 @@ def add_matrices2D(mat1, mat2):
                 new_matrix.append(new_row)
             else:
                 return None
-        return new_matrix                       
-    
+        return new_matrix
