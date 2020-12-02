@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""" """
+""" 0x00. Linear Algebra """
 
 
 def add_arrays(arr1, arr2):
-    """ """
+    """ add two arrays """
 
     new_array = []
     if len(arr1) == len(arr2):

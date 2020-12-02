@@ -3,7 +3,7 @@
 
 
 def matrix_shape(matrix):
-    """ """
+    """ Returns shape of matrix """
 
     if matrix:
         shape = [len(matrix)]
@@ -16,7 +16,7 @@ def matrix_shape(matrix):
 
 
 def mat_mul(mat1, mat2):
-    """ """
+    """ multiplies a matrix """
 
     shape1 = matrix_shape(mat1)
     shape2 = matrix_shape(mat2)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""" """
+""" 0x00. Linear Algebra """
 
 
 def add_matrices2D(mat1, mat2):
-    """ """
+    """ add elements of matrices """
 
     if len(mat1) == len(mat2):
         new_matrix = []

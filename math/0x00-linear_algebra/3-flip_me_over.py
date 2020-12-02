@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""" """
+""" 0x00. Linear Algebra """
 
 
 def matrix_transpose(matrix):
-    """ """
+    """ transposes a matrix """
 
     new_matrix = []
     for i in range(len(matrix[0])):
