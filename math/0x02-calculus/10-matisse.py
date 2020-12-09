@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Derive happiness in oneself from a good day's work 
+Derive happiness in oneself from a good day's work
 """
 
 
