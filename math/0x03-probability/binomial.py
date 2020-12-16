@@ -76,8 +76,12 @@ class Binomial:
         Args:
             k (int): number of “successes”
         """
-        cdf = 0
+        if type(k) is not int:
+            k = int(k)
+        if k < 0:
+            return 0
 
+        cdf = 0
         for i in range(k+1):
             cdf += self.pmf(i)
         return cdf
