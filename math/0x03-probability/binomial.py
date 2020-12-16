@@ -76,8 +76,8 @@ class Binomial:
         Args:
             k (int): number of “successes”
         """
-        total = 0
+        cdf = 0
 
-        for i in range(1, k+1):
-            total += self.pmf(i)
-        return total
+        for i in range(k+1):
+            cdf += self.pmf(i)
+        return cdf
