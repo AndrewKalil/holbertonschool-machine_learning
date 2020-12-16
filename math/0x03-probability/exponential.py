@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 """ Poisson Distribution """
 
+
 class Exponential:
     """ that represents an exponential distribution
     """
+
     def __init__(self, data=None, lambtha=1.):
         """Instantiation
 
         Args:
-            data (list): data to be used to estimate the distribution. Defaults to None.
-            lambtha (float): expected number of occurences in a given time frame. Defaults to 1..
+            data (list): data to be used to estimate the
+                distribution. Defaults to None.
+            lambtha (float): expected number of occurences
+                in a given time frame. Defaults to 1..
         """
         self.e = 2.7182818285
-        if data:
-            if type(data) is not list:
+        if data is not None:
+            if not isinstance(data, list):
                 raise TypeError("data must be a list")
             if len(data) <= 2:
                 raise ValueError("data must contain multiple values")
