@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ Poisson Distribution """
 
+
 def factorial(n):
     """calculates the factrial of a number
 
@@ -15,12 +16,14 @@ def factorial(n):
 
     fact = 1
 
-    for i in range(1,n+1):
+    for i in range(1, n+1):
         fact = fact * i
     return fact
 
+
 class Poisson:
     """ Represents the Posisson distribution """
+
     def __init__(self, data=None, lambtha=1):
         """Instantiation method
 
@@ -53,7 +56,8 @@ class Poisson:
             return 0
         if type(k) is not int:
             k = int(k)
-        summation = ((self.e**-self.lambtha) * (self.lambtha**k)) / factorial(k)
+        summation = ((self.e**-self.lambtha) *
+                     (self.lambtha**k)) / factorial(k)
         return summation
 
     def cdf(self, k):
