@@ -30,21 +30,21 @@ class Poisson:
         Args:
             data (list): data to be used to estimate the distribution.
                 Defaults to None.
-            lambtha (int, optional): expected number of occurences in a given time frame.
-                Defaults to 1.
+            lambtha (int, optional): expected number of occurences in
+                a given time frame. Defaults to 1.
         """
         self.e = 2.7182818285
 
-        if data is None:
-            self.lambtha = float(lambtha)
-        elif lambtha <= 0:
-            raise ValueError('lambtha must be a positive value')
-        elif type(data) is not list:
-            raise TypeError('data must be a list')
-        elif len(data) <= 2:
-            raise ValueError('data must contain multiple values')
-        else:
+        if data is not None:
+            if not isinstance(data, list):
+                raise TypeError("data must be a list")
+            if len(data) <= 2:
+                raise ValueError("data must contain multiple values")
             self.lambtha = float(sum(data) / len(data))
+        else:
+            if lambtha <= 0:
+                raise ValueError("lambtha must be a positive value")
+            self.lambtha = float(lambtha)
 
     def pmf(self, k):
         """probability mass function
