@@ -59,7 +59,8 @@ class Neuron:
                     contains the input data
         """
         Z = np.matmul(self.__W, X) + self.__b
-        self.__A = 1.0 / (1.0 + np.exp(-Z))
+        self.__A = 1 / (1 + np.exp(-Z))
+        """self.__A = sigmoid(Z)"""
         return self.__A
 
     def cost(self, Y, A):
@@ -88,8 +89,7 @@ class Neuron:
         """
         self.forward_prop(X)
         A = np.where(self.__A >= 0.5, 1, 0)
-        cost = self.cost(Y, self.__A)
-        return A, cost
+        return A, self.cost(Y, self.__A)
 
     def gradient_descent(self, X, Y, A, alpha=0.05):
         """Calculates one pass of gradient descent on the neuron
@@ -124,14 +124,14 @@ class Neuron:
             iterations:  is the number of iterations to train over
             alpha:  is the learning rate
         """
-        if type(iterations) != int:
+        if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
             raise ValueError("iterations must be a positive integer")
-        if type(alpha) != float:
+        if not isinstance(alpha, float):
             raise TypeError("alpha must be a float")
         if alpha <= 0:
-            raise TypeError("alpha must be positive")
+            raise ValueError("alpha must be positive")
         for i in range(iterations):
             self.forward_prop(X)
             self.gradient_descent(X, Y, self.__A, alpha)
