@@ -60,7 +60,8 @@ class Neuron:
                     contains the input data
         """
         Z = np.matmul(self.__W, X) + self.__b
-        self.__A = 1.0 / (1.0 + np.exp(-Z))
+        self.__A = 1 / (1 + np.exp(-Z))
+        """self.__A = sigmoid(Z)"""
         return self.__A
 
     def cost(self, Y, A):
@@ -89,8 +90,7 @@ class Neuron:
         """
         self.forward_prop(X)
         A = np.where(self.__A >= 0.5, 1, 0)
-        cost = self.cost(Y, self.__A)
-        return A, cost
+        return A, self.cost(Y, self.__A)
 
     def gradient_descent(self, X, Y, A, alpha=0.05):
         """Calculates one pass of gradient descent on the neuron

@@ -11,9 +11,8 @@ X = X_3D.reshape((X_3D.shape[0], -1)).T
 np.random.seed(0)
 deep = Deep(X.shape[0], [5, 3, 1])
 print(deep.cache)
-print(deep.weights)
-# for i, j in deep.weights:
-#     print("{} : {}".format(i, j), end="\n\n")
-# print(deep.L)
+for i, j in deep.weights.items():
+    print("{} : {}".format(i, j), end="\n\n")
+print(deep.L)
 deep.L = 10
-# print(deep.L)
+print(deep.L)
