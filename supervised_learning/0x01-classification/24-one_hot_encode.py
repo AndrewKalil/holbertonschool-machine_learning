@@ -4,6 +4,7 @@ import numpy as np
 
 
 def one_hot_encode(Y, classes):
+    """ Function for one hot encoding"""
     if len(Y) > 1:
         matrix = np.zeros((len(Y), classes))
         matrix[np.arange(len(Y)), Y] = 1
