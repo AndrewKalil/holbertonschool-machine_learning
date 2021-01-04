@@ -6,7 +6,7 @@ import numpy as np
 def one_hot_encode(Y, classes):
     """ Function for one hot encoding"""
 
-    if Y == None and classes < 1:
+    if Y is None or classes < 1:
         return None
 
     matrix = np.zeros((len(Y), classes))
