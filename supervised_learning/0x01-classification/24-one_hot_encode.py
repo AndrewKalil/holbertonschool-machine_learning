@@ -9,7 +9,7 @@ def one_hot_encode(Y, classes):
     if Y is None or classes < 1:
         return None
 
-    matrix = np.zeros((len(Y), classes))
+    matrix = np.zeros((classes, len(Y)))
     matrix[np.arange(len(Y)), Y] = 1
 
     return matrix.T
