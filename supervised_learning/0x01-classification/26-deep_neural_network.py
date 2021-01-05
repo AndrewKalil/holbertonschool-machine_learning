@@ -220,6 +220,7 @@ class DeepNeuralNetwork:
         except Exception:
             pass
 
+    @staticmethod
     def load(filename):
         """
             Loads a pickled
