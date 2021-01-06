@@ -9,8 +9,10 @@ def forward_prop(x, layer_sizes=[], activations=[]):
 
     Args:
         x:  placeholder for the input data
-        layer_sizes: list containing the number of nodes in each layer of the network
-        activations: list containing the activation functions for each layer of the network
+        layer_sizes: list containing the number of nodes in
+            each layer of the network
+        activations: list containing the activation functions
+            for each layer of the network
     """
     layer = create_layer(x, layer_sizes[0], activations[0])
     for i in range(1, len(layer_sizes)):
