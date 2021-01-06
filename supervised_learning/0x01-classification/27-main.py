@@ -40,4 +40,4 @@ for i in range(100):
     plt.title(A[i])
     plt.axis('off')
 plt.tight_layout()
-plt.show()
+plt.savefig("27-figure")
