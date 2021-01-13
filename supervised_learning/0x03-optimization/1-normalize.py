@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Description """
 import numpy as np
-import tensorflow as tf
 
 
 def normalize(X, m, s):
