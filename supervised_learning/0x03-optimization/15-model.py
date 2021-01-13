@@ -3,6 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
+
 def shuffle_data(X, Y):
     """
     shuffles the data points in two matrices the same way
