@@ -19,23 +19,52 @@ def dropout_gradient_descent(Y, weights, cache, alpha, keep_prob, L):
         keep_prob is the probability that a node will be kept
     """
 
-    weights2 = weights.copy()
     m = Y.shape[1]
+    dz = {}
+    dW = {}
+    db = {}
+    da = {}
+    for la in reversed(range(1, L + 1)):
+        A = cache["A{}".format(la)]
+        A_prev = cache["A{}".format(la - 1)]
 
-    for i in reversed(range(L)):
-        n = i + 1
-        if (n == L):
-            dz = cache["A" + str(n)] - Y
-            dw = (np.matmul(cache["A" + str(i)], dz.T) / m).T
+        # 3
+        if la == L:
+            kdz = "dz{}".format(la)
+            kdW = "dW{}".format(la)
+            kdb = "db{}".format(la)
+
+            dz[kdz] = A - Y
+            dW[kdW] = np.matmul(dz[kdz], A_prev.T) / m
+            db[kdb] = dz[kdz].sum(axis=1, keepdims=True) / m
+
         else:
-            dz1 = np.matmul(weights2["W" + str(n + 1)].T, current_dz)
-            dz2 = 1 - cache["A" + str(n)]**2
-            dz = dz1 * dz2 * cache['D' + str(n)] / keep_prob
-            dw = np.matmul(dz, cache["A" + str(i)].T) / m
+            # 2 - 1
+            kdz_n = "dz{}".format(la + 1)
+            kdz_c = "dz{}".format(la)
+            kdW_n = "dW{}".format(la + 1)
+            kdW = "dW{}".format(la)
+            kdb_n = "db{}".format(la + 1)
+            kdb = "db{}".format(la)
+            kda = "da{}".format(la)
+            kW = 'W{}'.format(la + 1)
+            kb = 'b{}'.format(la + 1)
+            kd = 'D{}'.format(la)
 
-        db = np.sum(dz, axis=1, keepdims=True) / m
+            W = weights[kW]
+            D = cache[kd]
 
-        weights["W" + str(n)] -= (alpha * dw)
-        weights["b" + str(n)] -= (alpha * db)
+            da[kda] = np.matmul(W.T, dz[kdz_n])
+            da[kda] *= D
+            da[kda] /= keep_prob
 
-        current_dz = dz
+            dz[kdz_c] = da[kda] * (1 - (A * A))
+            dW[kdW] = np.matmul(dz[kdz_c], A_prev.T) / m
+            db[kdb] = dz[kdz_c].sum(axis=1, keepdims=True) / m
+
+            weights[kW] -= alpha * dW[kdW_n]
+            weights[kb] -= alpha * db[kdb_n]
+
+            if la == 1:
+                weights['W1'] -= alpha * dW['dW1']
+                weights['b1'] -= alpha * db['db1']
