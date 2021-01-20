@@ -14,16 +14,11 @@ def l2_reg_cost(cost, lambtha, weights, L, m):
         L is the number of layers in the neural network
         m is the number of data points used
     """
-    if (L == 0):
-        return 0
+    summation = 0
+    for ly in range(1, L + 1):
+        key = "W{}".format(ly)
+        summation += np.linalg.norm(weights[key])
 
-    λ = lambtha
-    sum_weights = 0
+    L2_cost = lambtha * summation / (2 * m)
 
-    for keys in weights:
-        if (keys[0] == "W"):
-            values = weights[keys]
-            sum_weights += np.linalg.norm(values)
-
-    cost_l2 = cost + (λ / (2 * m)) * sum_weights
-    return(cost_l2)
+    return cost + L2_cost

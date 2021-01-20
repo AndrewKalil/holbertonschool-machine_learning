@@ -11,7 +11,4 @@ def l2_reg_cost(cost):
          of the network without L2 regularization
     """
 
-    entrophy_cost = cost
-    cost_l2 = tf.losses.get_regularization_losses(scope=None)
-
-    return(entrophy_cost + cost_l2)
+    return cost + tf.losses.get_regularization_losses()

@@ -20,24 +20,47 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
         lambtha is the L2 regularization parameter
         L is the number of layers of the network
     """
-    weights_t = weights.copy()
     m = Y.shape[1]
+    dz = {}
+    dW = {}
+    db = {}
+    for la in reversed(range(1, L + 1)):
+        A = cache["A{}".format(la)]
+        A_prev = cache["A{}".format(la - 1)]
 
-    for i in reversed(range(L)):
-        if i == L - 1:
-            dZ = cache['A{}'.format(i + 1)] - Y
-            dW = (np.matmul(dZ, cache['A{}'.format(i)].T)) / m
+        # 3
+        if la == L:
+            kdz = "dz{}".format(la)
+            kdW = "dW{}".format(la)
+            kW = "W{}".format(la)
+            kdb = "db{}".format(la)
+
+            W = weights[kW]
+            dz[kdz] = A - Y
+            dW[kdW] = np.matmul(dz[kdz], A_prev.T) / m + (lambtha * W) / m
+            db[kdb] = dz[kdz].sum(axis=1, keepdims=True) / m
         else:
-            dZa = np.matmul(weights_t['W{}'.format(i + 2)].T, dZ)
-            dZb = 1 - cache['A{}'.format(i + 1)]**2
-            dZ = dZa * dZb
-            dW = (np.matmul(dZ, cache['A{}'.format(i)].T)) / m
+            # 2 - 1
+            kdz_n = "dz{}".format(la + 1)
+            kdz_c = "dz{}".format(la)
+            kdW_n = "dW{}".format(la + 1)
+            kdW = "dW{}".format(la)
+            kdb_n = "db{}".format(la + 1)
+            kdb = "db{}".format(la)
+            kW = 'W{}'.format(la + 1)
+            kW_prev = 'W{}'.format(la)
+            kb = 'b{}'.format(la + 1)
 
-        dW_reg = dW + (lambtha / m) * weights_t['W{}'.format(i + 1)]
-        db = np.sum(dZ, axis=1, keepdims=True) / m
+            W = weights[kW]
+            W_p = weights[kW_prev]
+            g = 1 - (A * A)
+            dz[kdz_c] = np.matmul(W.T, dz[kdz_n]) * g
+            dW[kdW] = np.matmul(dz[kdz_c], A_prev.T) / m + (lambtha * W_p) / m
+            db[kdb] = dz[kdz_c].sum(axis=1, keepdims=True) / m
 
-        weights['W{}'.format(i + 1)] = weights_t['W{}'.format(i + 1)] \
-            - (alpha * dW_reg)
+            weights[kW] -= alpha * dW[kdW_n]
+            weights[kb] -= alpha * db[kdb_n]
 
-        weights['b{}'.format(i + 1)] = weights_t['b{}'.format(i + 1)] \
-            - (alpha * db)
+            if la == 1:
+                weights['W1'] -= alpha * dW['dW1']
+                weights['b1'] -= alpha * db['db1']
