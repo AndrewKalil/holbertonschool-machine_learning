@@ -25,7 +25,7 @@ def train_model(network, data, labels, batch_size, epochs,
           every epoch. Normally, it is a good idea to shuffle, but for
           reproducibility, we have chosen to set the default to False.
     """
-    def learning_rate(epochos):
+    def learning_rate(epochs):
         """ updates the learning rate using inverse time decay """
         return alpha / (1 + decay_rate * epochs)
 
