@@ -23,12 +23,9 @@ def train_model(network, data, labels, batch_size, epochs,
           every epoch. Normally, it is a good idea to shuffle, but for
           reproducibility, we have chosen to set the default to False.
     """
-    history = network.fit(data,
-                          labels,
-                          batch_size=batch_size,
-                          epochs=epochs,
-                          verbose=verbose,
-                          shuffle=shuffle
-                         )
-
-    return history
+    return network.fit(x=data,
+                       y=labels,
+                       epochs=epochs,
+                       batch_size=batch_size,
+                       shuffle=shuffle,
+                       verbose=verbose)
