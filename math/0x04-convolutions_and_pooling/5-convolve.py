@@ -25,15 +25,14 @@ def convolve(images, kernels, padding='same', stride=(1, 1)):
             sh is the stride for the height of the image
             sw is the stride for the width of the image
     """
-    w, h, m = images.shape[2], images.shape[1], images.shape[0]
-    c = images.shape[3]
-    kw, kh, nc = kernels.shape[1], kernels.shape[0], kernels.shape[3]
+    c, w, = images.shape[3], images.shape[2]
+    h, m = images.shape[1], images.shape[0]
+    nc, kw, kh = kernels.shape[3], kernels.shape[1], kernels.shape[0]
     sw, sh = stride[1], stride[0]
 
-    # calculates padding
-    ph, pw = 0, 0
+    pw, ph = 0, 0
 
-    if padding == "same":
+    if padding == 'same':
         ph = int(((h - 1) * sh + kh - h) / 2) + 1
         pw = int(((w - 1) * sw + kw - w) / 2) + 1
 
@@ -42,18 +41,18 @@ def convolve(images, kernels, padding='same', stride=(1, 1)):
         ph = padding[0]
         pw = padding[1]
 
-    # image padding
-    padded_image = np.pad(images,
-                          pad_width=((0, 0),
-                                     (ph, ph),
-                                     (pw, pw),
-                                     (0, 0)),
-                          mode='constant', constant_values=0)
+    # pad images
+    images = np.pad(images,
+                    pad_width=((0, 0),
+                               (ph, ph),
+                               (pw, pw),
+                               (0, 0)),
+                    mode='constant', constant_values=0)
 
     new_h = int(((h + 2 * ph - kh) / sh) + 1)
     new_w = int(((w + 2 * pw - kw) / sw) + 1)
 
-    # this is will form the shape of the output image
+    # initialize convolution output tensor
     output = np.zeros((m, new_h, new_w, nc))
 
     # Loop over every pixel of the output
@@ -65,7 +64,8 @@ def convolve(images, kernels, padding='same', stride=(1, 1)):
                 output[:, y, x, v] = \
                     (kernels[:, :, :, v] *
                      images[:,
-                            y * sh: y * sh + kh,
-                            x * sw: x * sw + kw,
-                            :]).sum(axis=(1, 2, 3))
+                     y * sh: y * sh + kh,
+                     x * sw: x * sw + kw,
+                     :]).sum(axis=(1, 2, 3))
+
     return output
