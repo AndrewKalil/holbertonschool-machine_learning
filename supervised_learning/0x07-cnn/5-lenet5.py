@@ -4,60 +4,50 @@ import tensorflow.keras as K
 
 
 def lenet5(X):
-    """ builds a modified version of the LeNet-5 architecture using
-      tensorflow
-
+    """Builds a modified version of the LeNet-5 architecture using keras.
     Args:
-        X is a tf.placeholder of shape (m, 28, 28, 1) containing the input
-          images for the network
-            m is the number of images
+        X (K.Input): shape (m, 28, 28, 1) containing the input images for the
+                     network
+    Returns:
+        A K.Model compiled to use Adam optimization (with default
+        hyperparameters) and accuracy metrics.
     """
-    # exampla taken from : https://bit.ly/3bnQ10z
+    C1 = K.layers.Conv2D(filters=6,
+                         kernel_size=5,
+                         padding='same',
+                         activation='relu',
+                         kernel_initializer='he_normal')(X)
 
-    init_ = K.initializers.he_normal()
-    # 1. Conv layer, 6 kernels of shape 5x5 with same padding (hidden)
-    cv_lyr1 = K.layers.Conv2D(filters=6,
-                              kernel_size=(5, 5),
-                              padding='same',
-                              kernel_initializer=init_,
-                              activation='relu')(X)
+    S2 = K.layers.MaxPooling2D(pool_size=(2, 2),
+                               strides=(2, 2))(C1)
 
-    # 2. Max pooling layer, with kernels of shape 2x2 & 2x2 strides (hidden)
-    pool_lyr_2 = K.layers.MaxPooling2D(pool_size=(2, 2),
-                                       strides=(2, 2))(cv_lyr1)
+    C3 = K.layers.Conv2D(filters=16,
+                         kernel_size=5,
+                         padding='valid',
+                         activation='relu',
+                         kernel_initializer='he_normal')(S2)
 
-    # 3. Conv layer, 16 kernels of shape 5x5 with same padding (hidden)
-    cv_lyr3 = K.layers.Conv2D(filters=16,
-                              kernel_size=(5, 5),
-                              padding='valid',
-                              kernel_initializer=init_,
-                              activation='relu')(pool_lyr_2)
+    S4 = K.layers.MaxPooling2D(pool_size=(2, 2),
+                               strides=(2, 2))(C3)
 
-    # 4. Max pooling layer, with kernels of shape 2x2 & 2x2 strides (hidden)
-    pool_lyr_4 = K.layers.MaxPooling2D(pool_size=(2, 2),
-                                       strides=(2, 2))(cv_lyr3)
+    flatten = K.layers.Flatten()(S4)
 
-    # 5. Fully connected layer with 120 nodes
-    flatten5 = K.layers.Flatten()(pool_lyr_4)
-    fc_lyr_5 = K.layers.Dense(units=120,
-                              activation='relu',
-                              kernel_initializer=init_)(flatten5)
+    C5 = K.layers.Dense(units=120,
+                        activation='relu',
+                        kernel_initializer='he_normal')(flatten)
 
-    # 6. Fully connected layer with 84 nodes
-    # no need of flatten
-    fc_lyr_6 = K.layers.Dense(units=84,
-                              activation='relu',
-                              kernel_initializer=init_)(fc_lyr_5)
+    F6 = K.layers.Dense(units=84,
+                        activation='relu',
+                        kernel_initializer='he_normal')(C5)
 
-    # 7. Fully connected softmax output layer with 10 nodes
-    # no need of flatten
-    sfmx_lyr = K.layers.Dense(units=10,
-                              activation='softmax',
-                              kernel_initializer=init_)(fc_lyr_6)
+    OUTPUT = K.layers.Dense(units=10,
+                            activation='softmax',
+                            kernel_initializer='he_normal')(F6)
 
-    model = K.Model(inputs=X, outputs=sfmx_lyr)
-    model.compile(optimizer='Adam',
+    model = K.Model(inputs=X, outputs=OUTPUT)
+
+    model.compile(optimizer=K.optimizers.Adam(),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
-    return (model)
+    return model
