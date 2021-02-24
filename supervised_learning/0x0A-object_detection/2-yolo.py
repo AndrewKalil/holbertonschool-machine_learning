@@ -35,26 +35,65 @@ class Yolo:
         self.nms_t = nms_t
         self.anchors = anchors
 
-    def sigmoid(self, x):
-        """ calculates sigmoid function """
-        return 1 / (1 + np.exp(-x))
+    def sigmoid_f(self, x):
+        """
+            sigmoid.
+        # Args
+            x: Tensor.
+        # Returns
+            numpy ndarray.
+        """
+
+        return (1 / (1 + np.exp(-x)))
 
     def process_outputs(self, outputs, image_size):
         """
+        Function that
         Args:
-            outputs is a list of numpy.ndarrays containing the predictions
-              from the Darknet model for a single image:
-                Each output will have the shape (grid_height, grid_width,
-                  anchor_boxes, 4 + 1 + classes)
-                    grid_height & grid_width => the height and width of the
-                      grid used for the output
-                    anchor_boxes => the number of anchor boxes used
-                    4 => (t_x, t_y, t_w, t_h)
-                    1 => box_confidence
-                    classes => class probabilities for all classes
-            image_size is a numpy.ndarray containing the image’s original
-              size [img_h, img_w]
+            - outputs:  list of numpy.ndarrays containing the predictions from
+                        the Darknet model for a single image: Each output has
+                        shape (grid_height, grid_width, anchor_boxes,
+                        4 + 1 + classes)
+                    > grid_height:  Height of the grid used for the output
+                                    anchor_boxes
+                    > grid_width:   Width of the grid used for the output
+                                    anchor_boxes
+                    > anchor_boxes: Number of anchor boxes used
+                    > 4:
+                        t_x:    x pos of the center point of the anchor box
+                        t_y:    y pos of the center point of the anchor box
+                        t_w:    width of the anchor box
+                        t_h:    height of the anchor box
+                    > 1:            box_confidence
+                    > classes:      class probabilities for all classes
+            - image_size:   numpy.ndarray containing the image’s original size
+                            [image_height, image_width]
+        Returns:
+            A tuple of (boxes, box_confidences, box_class_probs):
+                    > boxes:    List of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, 4) containing the
+                                processed boundary boxes for each output,
+                                respectively:
+                            4:  (x1, y1, x2, y2) should represent the boundary
+                                box relative to original image
+                    > box_confidences:
+                                list of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, 1) containing the box
+                                confidences for each output, respectively
+                    > box_class_probs:
+                                list of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, classes) containing
+                                the box’s class probabilities for each output,
+                                respectively
         """
+
+        # shape (13,  13,   3,  [t_x, t_y, t_w, t_h],   1    80)
+        # Dim   ([0], [1], [2],        [3],           [4]   [5])
+
+        # 1. boxes = dim [2]
+        # Procesed according to Fig 2 of paper: https://bit.ly/3emqWp0
+        # Adapted from https://bit.ly/2VEZgmZ
+
         boxes = []
         for i in range(len(outputs)):
             boxes_i = outputs[i][..., 0:4]
@@ -76,8 +115,8 @@ class Yolo:
                         ph_n = self.anchors[i][anchor_n][1]
 
                         # calculating center
-                        bx_n = self.sigmoid(tx_n) + cx_n
-                        by_n = self.sigmoid(ty_n) + cy_n
+                        bx_n = self.sigmoid_f(tx_n) + cx_n
+                        by_n = self.sigmoid_f(ty_n) + cy_n
 
                         # calculating hight and width
                         bw_n = pw_n * np.exp(tw_n)
@@ -88,8 +127,8 @@ class Yolo:
                         new_by_n = by_n / grid_h_i
 
                         # generating new hight and width
-                        new_bh_n = bh_n / self.model.input.shape[2]
-                        new_bw_n = bw_n / self.model.input.shape[1]
+                        new_bh_n = bh_n / self.model.input.shape[2].value
+                        new_bw_n = bw_n / self.model.input.shape[1].value
 
                         # calculating (cx1, cy1) and (cx2, cy2) coords
                         y1 = (new_by_n - (new_bh_n / 2)) * image_size[0]
@@ -107,13 +146,13 @@ class Yolo:
         # 2. box confidence = dim [4]
         confidence = []
         for i in range(len(outputs)):
-            confidence_i = self.sigmoid(outputs[i][..., 4:5])
+            confidence_i = self.sigmoid_f(outputs[i][..., 4:5])
             confidence.append(confidence_i)
 
         # 3. box class_probs = dim [5:]
         probs = []
         for i in range(len(outputs)):
-            probs_i = self.sigmoid(outputs[i][:, :, :, 5:])
+            probs_i = self.sigmoid_f(outputs[i][:, :, :, 5:])
             probs.append(probs_i)
 
         return (boxes, confidence, probs)

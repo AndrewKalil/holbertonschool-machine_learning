@@ -38,26 +38,65 @@ class Yolo:
         self.nms_t = nms_t
         self.anchors = anchors
 
-    def sigmoid(self, x):
-        """ calculates sigmoid function """
-        return 1 / (1 + np.exp(-x))
+    def sigmoid_f(self, x):
+        """
+            sigmoid.
+        # Args
+            x: Tensor.
+        # Returns
+            numpy ndarray.
+        """
+
+        return (1 / (1 + np.exp(-x)))
 
     def process_outputs(self, outputs, image_size):
         """
+        Function that
         Args:
-            outputs is a list of numpy.ndarrays containing the predictions
-              from the Darknet model for a single image:
-                Each output will have the shape (grid_height, grid_width,
-                  anchor_boxes, 4 + 1 + classes)
-                    grid_height & grid_width => the height and width of the
-                      grid used for the output
-                    anchor_boxes => the number of anchor boxes used
-                    4 => (t_x, t_y, t_w, t_h)
-                    1 => box_confidence
-                    classes => class probabilities for all classes
-            image_size is a numpy.ndarray containing the image’s original
-              size [img_h, img_w]
+            - outputs:  list of numpy.ndarrays containing the predictions from
+                        the Darknet model for a single image: Each output has
+                        shape (grid_height, grid_width, anchor_boxes,
+                        4 + 1 + classes)
+                    > grid_height:  Height of the grid used for the output
+                                    anchor_boxes
+                    > grid_width:   Width of the grid used for the output
+                                    anchor_boxes
+                    > anchor_boxes: Number of anchor boxes used
+                    > 4:
+                        t_x:    x pos of the center point of the anchor box
+                        t_y:    y pos of the center point of the anchor box
+                        t_w:    width of the anchor box
+                        t_h:    height of the anchor box
+                    > 1:            box_confidence
+                    > classes:      class probabilities for all classes
+            - image_size:   numpy.ndarray containing the image’s original size
+                            [image_height, image_width]
+        Returns:
+            A tuple of (boxes, box_confidences, box_class_probs):
+                    > boxes:    List of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, 4) containing the
+                                processed boundary boxes for each output,
+                                respectively:
+                            4:  (x1, y1, x2, y2) should represent the boundary
+                                box relative to original image
+                    > box_confidences:
+                                list of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, 1) containing the box
+                                confidences for each output, respectively
+                    > box_class_probs:
+                                list of numpy.ndarrays of shape (grid_height,
+                                grid_width, anchor_boxes, classes) containing
+                                the box’s class probabilities for each output,
+                                respectively
         """
+
+        # shape (13,  13,   3,  [t_x, t_y, t_w, t_h],   1    80)
+        # Dim   ([0], [1], [2],        [3],           [4]   [5])
+
+        # 1. boxes = dim [2]
+        # Procesed according to Fig 2 of paper: https://bit.ly/3emqWp0
+        # Adapted from https://bit.ly/2VEZgmZ
+
         boxes = []
         for i in range(len(outputs)):
             boxes_i = outputs[i][..., 0:4]
@@ -79,8 +118,8 @@ class Yolo:
                         ph_n = self.anchors[i][anchor_n][1]
 
                         # calculating center
-                        bx_n = self.sigmoid(tx_n) + cx_n
-                        by_n = self.sigmoid(ty_n) + cy_n
+                        bx_n = self.sigmoid_f(tx_n) + cx_n
+                        by_n = self.sigmoid_f(ty_n) + cy_n
 
                         # calculating hight and width
                         bw_n = pw_n * np.exp(tw_n)
@@ -91,8 +130,8 @@ class Yolo:
                         new_by_n = by_n / grid_h_i
 
                         # generating new hight and width
-                        new_bh_n = bh_n / self.model.input.shape[2]
-                        new_bw_n = bw_n / self.model.input.shape[1]
+                        new_bh_n = bh_n / self.model.input.shape[2].value
+                        new_bw_n = bw_n / self.model.input.shape[1].value
 
                         # calculating (cx1, cy1) and (cx2, cy2) coords
                         y1 = (new_by_n - (new_bh_n / 2)) * image_size[0]
@@ -110,13 +149,13 @@ class Yolo:
         # 2. box confidence = dim [4]
         confidence = []
         for i in range(len(outputs)):
-            confidence_i = self.sigmoid(outputs[i][..., 4:5])
+            confidence_i = self.sigmoid_f(outputs[i][..., 4:5])
             confidence.append(confidence_i)
 
         # 3. box class_probs = dim [5:]
         probs = []
         for i in range(len(outputs)):
-            probs_i = self.sigmoid(outputs[i][:, :, :, 5:])
+            probs_i = self.sigmoid_f(outputs[i][:, :, :, 5:])
             probs.append(probs_i)
 
         return (boxes, confidence, probs)
@@ -351,130 +390,3 @@ class Yolo:
 
         return (res_images, dims)
 
-    def show_boxes(self, image, boxes, box_classes, box_scores, file_name):
-        """
-        Function that displays the image with all boundary boxes, class names,
-        and box scores (see example below)
-        1  -  Boxes should be drawn as with a blue line of thickness 2
-        2  -  Class names and box scores should be drawn above each box in red
-        3  -  Box scores should be rounded to 2 decimal places
-        4  -  Text should be written 5 pixels above the top left corner of the
-              box
-        5  -  Text should be written in FONT_HERSHEY_SIMPLEX
-        6  -  Font scale should be 0.5
-        7  -  Line thickness should be 1
-        8  -  You should use LINE_AA as the line type
-        9  -  The window name should be the same as file_name
-        10 -  If the s key is pressed:
-            - The image should be saved in the directory detections, located
-              in the current directory
-            - If detections does not exist, create it
-            - The saved image should have the file name file_name
-            - The image window should be closed
-            If any key besides s is pressed, the image window should be closed
-            without saving
-        Args:
-            - image:        numpy.ndarray containing an unprocessed image
-            - boxes:        numpy.ndarray containing the boundary boxes for
-                            the image
-            - box_classes:  numpy.ndarray containing the class indices for
-                            each box
-            - box_scores:   numpy.ndarray containing the box scores for each
-                            box
-            - file_name:    the file path where the original image is stored
-        Returns: Nothing
-        """
-        # 1. colors for printing
-        box_color = (0, 0, 255)
-        box_thickness = 2
-
-        # 2. colors for printing
-        box_score_color = (255, 0, 0)
-
-        # 5-6. Font
-        font_type = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.5
-
-        # 7 Line
-        line_thickness = 1
-        line_type = cv2.LINE_AA
-
-        i = 0
-        for box_i in boxes:
-            # bounding boxes
-            start_point = (int(box_i[0]), int(box_i[1]))
-            end_point = (int(box_i[2]), int(box_i[3]))
-
-            # print box
-            box_i = cv2.rectangle(img=image,
-                                  pt1=start_point,
-                                  pt2=end_point,
-                                  color=box_score_color,
-                                  thickness=box_thickness)
-
-            # print text
-            bc_i = box_classes[i]
-            bs_i = box_scores[i]
-            text = self.class_names[bc_i] + " {:.2f}".format(bs_i)
-            org = (start_point[0], start_point[1] - 5)
-
-            box_i = cv2.putText(img=box_i,
-                                text=text,
-                                org=org,
-                                fontFace=font_type,
-                                fontScale=font_scale,
-                                color=box_color,
-                                thickness=line_thickness,
-                                lineType=line_type,
-                                bottomLeftOrigin=False)
-            # show the image
-            cv2.imshow(file_name, image)
-            i = i + 1
-
-            # wait for key and save if that is the case
-            if cv2.waitKey(0) == 's':
-                if not os.path.exists('detections'):
-                    os.makedirs('detections')
-                os.chdir('detections')
-                cv2.imwrite(file_name, image)
-                os.chdir('../')
-            cv2.destroyAllWindows()
-
-    def predict(self, folder_path):
-        """
-        Function that displays all images using the show_boxes method
-        Args:
-            - folder_path:  string representing the path to the folder holding
-                            all the images to predict
-        Note:   - All image windows should be named after the corresponding
-                  image filename without its full path(see examples below)
-        Returns: - Tuple of (predictions, image_paths):
-                    > predictions: list of tuples for each image of (boxes,
-                      box_classes, box_scores)
-                    > image_paths: list of image paths corresponding to each
-                      prediction in predictions without saving
-        """
-
-        # load data
-        images, image_paths = self.load_images(folder_path)
-        preprocess_images, _ = self.preprocess_images(images)
-        outs = self.model.predict(preprocess_images)
-
-        predictions_list = []
-        i = 0
-        for image_i in images:
-            outputs = [outs[0][i, ...], outs[1][i, ...], outs[2][i, ...]]
-            image_size = np.array([image_i.shape[0], image_i.shape[1]])
-
-            # proces, filter and generate nps
-            boxes, confi, c_probs = self.process_outputs(outputs, image_size)
-            filt, clas, sc = self.filter_boxes(boxes, confi, c_probs)
-            b_pred, c_pred, s_pred = self.non_max_suppression(filt, clas, sc)
-
-            predictions_list.append((b_pred, c_pred, s_pred))
-
-            # get names and save
-            names = image_paths[i].split("/")[-1]
-            self.show_boxes(image_i, b_pred, c_pred, s_pred, names)
-            i = i + 1
-        return (predictions_list, image_paths)
