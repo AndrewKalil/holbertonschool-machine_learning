@@ -5,5 +5,6 @@ if __name__ == '__main__':
     intersection = __import__('1-intersection').intersection
 
     P = np.linspace(0, 1, 11)
-    Pr = np.ones(11) / 11 # this prior assumes that everything is equally as likely
+    # this prior assumes that everything is equally as likely
+    Pr = np.ones(11) / 11
     print(intersection(26, 130, P, Pr))
