@@ -3,62 +3,44 @@
 
 import numpy as np
 
-
-def initialize(X, k):
-    """ initializes cluster centroids for K-means.
-        Args:
-            X: (numpy.ndarray) containing the dataset that
-               will be used for K-means clustering.
-            k: (int) containing the number of clusters.
-        Returns:
-            (numpy.ndarray) containing the initialized centroids
-                            for each cluster, or None on failure.
-    """
-
-    if type(X) != np.ndarray or type(k) != int or len(X.shape) != 2 or k <= 0:
-        return None
-    n, d = X.shape
-    centroids = np.zeros((k, X.shape[1]))
-    centroids = np.random.uniform(low=X.min(axis=0), high=X.max(axis=0),
-                                  size=(k, d))
-    return centroids
-
-
 def kmeans(X, k, iterations=1000):
-    """ performs K-means on a dataset.
-        Args:
-            X: (numpy.ndarray) containing the dataset that
-               will be used for K-means clustering.
-            k: (int) containing the number of clusters.
-        Returns:
-            (numpy.ndarray) containing the centroid
-                            means for each cluster.
-            (numpy.ndarray) containing the index of the cluster
-                            in C that each data point belongs to.
     """
-    centroids = initialize(X, k)
-    if centroids is None or type(iterations) != int or iterations <= 0:
+    Performs K-means on a dataset
+    :param X: numpy.ndarray of shape (n, d) containing the dataset that will
+    be used for K-means clustering
+        n is the number of data points
+        d is the number of dimensions for each data point
+    :param iterations: positive integer containing the maximum number of
+    iterations that should be performed
+    :return: C, clss, or None, None on failure
+        C is a numpy.ndarray of shape (k, d) containing the centroid means
+        for each cluster
+        clss is a numpy.ndarray of shape (n,) containing the index of the
+        cluster in C that each data point belongs to
+    """
+    if type(k) is not int or k <= 0:
         return None, None
-    counter = 0
-    for iteration in range(iterations):
-        distance = np.sqrt((X[:, np.newaxis, 0] - centroids[:, 0])**2 +
-                           (X[:, np.newaxis, 1] - centroids[:, 1])**2)
-        clss = np.argmin(distance, axis=1)
-        current_centroids = np.zeros(centroids.shape)
-        for i in range(k):
-            index = np.where(clss == i)
-            centroids_data = X[index]
-            if len(centroids_data) == 0:
-                current_centroids[i] = initialize(X, 1)
+    if type(X) is not np.ndarray or len(X.shape) != 2:
+        return None, None
+    if type(iterations) is not int or iterations <= 0:
+        return None, None
+    n, d = X.shape
+    centroids = np.random.uniform(np.min(X, axis=0), np.max(X, axis=0),
+                                  size=(k, d))
+    for i in range(iterations):
+        copy = centroids.copy()
+        D = np.sqrt(((X - centroids[:, np.newaxis]) ** 2).sum(axis=2))
+        clss = np.argmin(D, axis=0)
+        for j in range(k):
+            if len(X[clss == j]) == 0:
+                centroids[j] = np.random.uniform(np.min(X, axis=0),
+                                                 np.max(X, axis=0),
+                                                 size=(1, d))
             else:
-                current_centroids[i] = np.mean(centroids_data, axis=0)
-        if np.array_equal(current_centroids, centroids):
-            break
-        else:
-            centroids = current_centroids
-
-    distance = np.sqrt((X[:, np.newaxis, 0] - centroids[:, 0])**2 +
-                       (X[:, np.newaxis, 1] - centroids[:, 1])**2)
-    clss = np.argmin(distance, axis=1)
+                centroids[j] = (X[clss == j]).mean(axis=0)
+        D = np.sqrt(((X - centroids[:, np.newaxis]) ** 2).sum(axis=2))
+        clss = np.argmin(D, axis=0)
+        if np.all(copy == centroids):
+            return centroids, clss
 
     return centroids, clss
