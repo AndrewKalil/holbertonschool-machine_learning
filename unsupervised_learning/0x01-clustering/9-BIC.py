@@ -9,19 +9,19 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     """
     Function that performs the expectation maximization for a GMM:
     Args:
-		X: numpy.ndarray -> Array of shape (n, d) with the data
-    	kmin: int -> positive int with the minimum number
+                X: numpy.ndarray -> Array of shape (n, d) with the data
+        kmin: int -> positive int with the minimum number
             of clusters to check for (inclusive)
-    	kmax: int -> positive int with the maximum number
+        kmax: int -> positive int with the maximum number
             of clusters to check for (inclusive)
-    	iterations: int -> positive int with the maximum number
+        iterations: int -> positive int with the maximum number
             of iterations for the algorithm
-    	tol: float -> non-negative float with the tolerance
+        tol: float -> non-negative float with the tolerance
             of the log likelihood, used to
             determine early stopping i.e. if the
             difference is less than or equal to
             tol you should stop the algorithm
-    	verbose: bool -> boolean that determines if you should
+        verbose: bool -> boolean that determines if you should
             print information about the algorithm
             If True, print Log Likelihood after {i} iterations: {l}
             every 10 iterations and after the last iteration
@@ -35,46 +35,49 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
 
     if not isinstance(X, np.ndarray) or len(X.shape) != 2:
         return None, None, None, None
-    if type(kmin) != int or kmin <= 0 or kmin >= X.shape[0]:
+    if kmax is None:
+        kmax = X.shape[0]
+    if type(kmin) != int or kmin <= 0 or X.shape[0] <= kmin:
         return None, None, None, None
-    if type(kmax) != int or kmax <= 0 or kmax >= X.shape[0]:
+    if type(kmax) != int or kmax <= 0 or X.shape[0] < kmax:
         return None, None, None, None
-    if kmin >= kmax:
+    if kmax <= kmin:
         return None, None, None, None
     if type(iterations) != int or iterations <= 0:
         return None, None, None, None
-    if type(tol) != float or tol <= 0:
+    if type(tol) != float or tol < 0:
         return None, None, None, None
     if type(verbose) != bool:
         return None, None, None, None
 
-    k_best = []
-    best_res = []
-    logl_val = []
-    bic_val = []
     n, d = X.shape
+
+    b = []
+    results = []
+    ks = []
+    l_ = []
+
     for k in range(kmin, kmax + 1):
-        pi, m, S,  _, log_l = expectation_maximization(X, k, iterations, tol,
-                                                       verbose)
-        k_best.append(k)
-        best_res.append((pi, m, S))
-        logl_val.append(log_l)
+        ks.append(k)
 
-        # Formula pf paramaters: https://bit.ly/33Cw8lH
-        # code based on gaussian mixture source code n_parameters source code
-        cov_params = k * d * (d + 1) / 2.
-        mean_params = k * d
-        p = int(cov_params + mean_params + k - 1)
+        pi, m, S, g, l_k = expectation_maximization(X,
+                                                    k,
+                                                    iterations=iterations,
+                                                    tol=tol,
+                                                    verbose=verbose)
+        results.append((pi, m, S))
 
-        # Formula for this task BIC = p * ln(n) - 2 * l
-        bic = p * np.log(n) - 2 * log_l
-        bic_val.append(bic)
+        l_.append(l_k)
+        p = k - 1 + k * d + k * d * (d + 1) / 2
 
-    bic_val = np.array(bic_val)
-    logl_val = np.array(logl_val)
-    best_val = np.argmin(bic_val)
+        bic = p * np.log(n) - 2 * l_k
+        b.append(bic)
 
-    k_best = k_best[best_val]
-    best_res = best_res[best_val]
+    l_ = np.array(l_)
+    b = np.array(b)
 
-    return k_best, best_res, logl_val, bic_val
+    index = np.argmin(b)
+    best_k = ks[index]
+    best_result = results[index]
+
+    return best_k, best_result, l_, b
