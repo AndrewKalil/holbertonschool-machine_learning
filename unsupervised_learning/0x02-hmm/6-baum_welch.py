@@ -2,6 +2,7 @@
 """ Markov chain: baum welch algorithm """
 import numpy as np
 
+
 def forward(Observation, Emission, Transition, Initial):
     """
     Function that performs the forward algorithm for a hidden markov model:
@@ -71,6 +72,7 @@ def forward(Observation, Emission, Transition, Initial):
 
     except BaseException:
         return None, None
+
 
 def backward(Observation, Emission, Transition, Initial):
     """
