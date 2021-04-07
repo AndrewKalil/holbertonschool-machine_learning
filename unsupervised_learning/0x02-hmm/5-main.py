@@ -24,6 +24,7 @@ if __name__ == '__main__':
     for s in Hidden:
         Observations.append(np.random.choice(6, p=Emission[s]))
     Observations = np.array(Observations)
-    P, B = backward(Observations, Emission, Transition, Initial.reshape((-1, 1)))
+    P, B = backward(Observations, Emission, Transition,
+                    Initial.reshape((-1, 1)))
     print(P)
     print(B)
