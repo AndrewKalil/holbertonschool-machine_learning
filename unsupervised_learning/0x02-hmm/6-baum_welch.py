@@ -345,7 +345,6 @@ def backward(Observation, Emission, Transition, Initial):
     except BaseException:
         return None, None
 
-
 def baum_welch(Observations, N, M, Transition=None,
                Emission=None, Initial=None):
     """
@@ -440,8 +439,8 @@ def baum_welch(Observations, N, M, Transition=None,
 
             K = Emission.shape[1]
             denominator = np.sum(gamma, axis=1)
-            for x in range(K):
-                Emission[:, x] = np.sum(gamma[:, Observations == x], axis=1)
+            for l in range(K):
+                Emission[:, l] = np.sum(gamma[:, Observations == l], axis=1)
 
             b = np.divide(Emission, denominator.reshape((-1, 1)))
 
