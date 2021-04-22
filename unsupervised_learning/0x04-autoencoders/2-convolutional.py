@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+""" Autoencoder with convolutional layers """
 import tensorflow.keras as K
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPooling2D, UpSampling2D
