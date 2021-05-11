@@ -10,7 +10,6 @@ plt.style.use('fivethirtyeight')
 preprocess_data = __import__('preprocess_data').preprocess_data
 
 
-
 def visualize_data(data):
     """Visualize in a histogram the initial data of weight vs time
 
