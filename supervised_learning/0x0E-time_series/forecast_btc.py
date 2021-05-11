@@ -131,6 +131,6 @@ def forecast_btc():
 
 
 # data length is 2099760
-# if __name__ == '__main__':
-#     result = forecast_btc()
-#     print(result)
+if __name__ == '__main__':
+    result = forecast_btc()
+    print(result)
