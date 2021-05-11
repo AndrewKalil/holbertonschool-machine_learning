@@ -8,7 +8,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 plt.style.use('fivethirtyeight')
-preprocess_data = __import__('preprocess_data').preprocess_data
 
 
 def visualize_data(data):
@@ -83,7 +82,7 @@ def forecast_btc():
     X_train, y_train = create_features(data_train, label='Weighted_Price')
     X_test, y_test = create_features(data_test, label='Weighted_Price')
 
-    model = xgb.XGBRegressor(objective='reg:linear', min_child_weight=10,
+    model = xgb.XGBRegressor(objective='reg:squarederror', min_child_weight=10,
                              booster='gbtree', colsample_bytree=0.19,
                              learning_rate=0.135, max_depth=5, alpha=10,
                              n_estimators=100)
@@ -132,5 +131,6 @@ def forecast_btc():
 
 # data length is 2099760
 if __name__ == '__main__':
+    preprocess_data = __import__('preprocess_data').preprocess_data
     result = forecast_btc()
     print(result)
