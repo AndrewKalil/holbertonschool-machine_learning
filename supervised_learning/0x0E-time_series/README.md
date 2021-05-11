@@ -1,1 +1,4 @@
-# Time Series
+### Time Series
+
+
+###### Author: Andrew Kalil
