@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """ XGBoost Forecasting for bitcoin"""
 
+import pandas as pd
 from xgboost import plot_importance, plot_tree
 import xgboost as xgb
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -60,7 +60,7 @@ def forecast_btc():
 
     # preprocess data and prepare it for training
     file = 'coinbaseUSD_1-min_data_2014-12-01_to_2019-01-09.csv'
-    data = preprocess_data(file)
+    data = preprocess(file)
 
     # Initial vizualiztion of data
     visualize_data(data)
@@ -131,6 +131,6 @@ def forecast_btc():
 
 # data length is 2099760
 if __name__ == '__main__':
-    preprocess_data = __import__('preprocess_data').preprocess_data
+    preprocess = __import__('preprocess_data').preprocess_data
     result = forecast_btc()
     print(result)
